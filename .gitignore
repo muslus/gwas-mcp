@@ -82,3 +82,5 @@ Thumbs.db
 data/
 output/
 results/
+
+.mcpregistry_*
