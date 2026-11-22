@@ -142,7 +142,8 @@ class TestStringTools:
                 "p_value": 0.001,
                 "fdr": 0.01,
                 "number_of_genes": 2,
-                "inputGenes": "GGCX,INHBB",
+                "inputGenes": ["GGCX", "INHBB"],
+                "preferredNames": ["GGCX", "INHBB"],
             }
         ]
         response = _MockStringResponse(sample_enrichment, content_type="text/json")
@@ -157,6 +158,28 @@ class TestStringTools:
         result = json.loads(raw)
         assert result["n_categories"] == 1
         assert "Process" in result["enrichment_by_category"]
+        assert result["enrichment_by_category"]["Process"][0]["genes_matched"] == ["GGCX", "INHBB"]
+
+    async def test_functional_enrichment_legacy_string_input_genes(self):
+        sample_enrichment = [
+            {
+                "category": "Process",
+                "term": "GO:0007596",
+                "description": "Blood coagulation",
+                "p_value": 0.001,
+                "fdr": 0.01,
+                "number_of_genes": 2,
+                "inputGenes": "GGCX, INHBB",
+            }
+        ]
+        response = _MockStringResponse(sample_enrichment, content_type="text/json")
+        session, _ = _make_mock_session(response)
+
+        with patch("gwas_mcp.tools.clinical_tools.aiohttp.ClientSession", return_value=session):
+            raw = await get_functional_enrichment(["GGCX", "INHBB", "CCNT2"])
+
+        result = json.loads(raw)
+        assert result["enrichment_by_category"]["Process"][0]["genes_matched"] == ["GGCX", "INHBB"]
 
     @pytest.mark.skipif(
         not os.environ.get("RUN_LIVE_STRING_TESTS"),

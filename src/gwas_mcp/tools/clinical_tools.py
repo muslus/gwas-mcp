@@ -479,6 +479,17 @@ async def get_interaction_network(proteins: List[str], species: int = 9606) -> s
         return json.dumps({"error": str(e)}, indent=2)
 
 
+def _parse_string_list(value: Any) -> List[str]:
+    """Normalize STRING fields that may be a list of strings or a comma-separated string."""
+    if not value:
+        return []
+    if isinstance(value, list):
+        return [str(v).strip() for v in value if str(v).strip()]
+    if isinstance(value, str):
+        return [v.strip() for v in value.split(",") if v.strip()]
+    return []
+
+
 async def get_functional_enrichment(proteins: List[str], species: int = 9606) -> str:
     """
     Get functional enrichment analysis from STRING.
@@ -523,7 +534,7 @@ async def get_functional_enrichment(proteins: List[str], species: int = 9606) ->
                         "p_value": term.get("p_value"),
                         "fdr": term.get("fdr"),
                         "genes_in_term": term.get("number_of_genes"),
-                        "genes_matched": term.get("inputGenes", "").split(",") if term.get("inputGenes") else []
+                        "genes_matched": _parse_string_list(term.get("inputGenes"))
                     })
                 
                 result = json.dumps({

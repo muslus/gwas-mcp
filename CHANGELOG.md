@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fix STRING network tools returning 0 edges (double-encoded identifier separator, text/json content-type)
+- Fix get_functional_enrichment crashing on list-typed fields in STRING enrichment response
 
 ## [1.0.0] - 2026-02-09
 
