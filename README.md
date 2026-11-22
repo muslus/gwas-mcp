@@ -196,7 +196,7 @@ Once configured, ask Claude naturally:
 
 ```bash
 # Clone the repository
-git clone https://github.com/zaeyasa/gwas-mcp.git
+git clone https://github.com/muslus/gwas-mcp.git
 cd gwas-mcp
 
 # Install dependencies

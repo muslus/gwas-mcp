@@ -4,7 +4,7 @@
     "title": "GWAS Bioinformatics MCP Server",
     "description": "Access 30+ bioinformatics tools from 14 databases.",
     "repository": {
-        "url": "https://github.com/zaeyasa/gwas-mcp",
+        "url": "https://github.com/muslus/gwas-mcp",
         "source": "github"
     },
     "version": "1.0.3",
