@@ -7,12 +7,12 @@
         "url": "https://github.com/zaeyasa/gwas-mcp",
         "source": "github"
     },
-    "version": "1.0.2",
+    "version": "1.0.3",
     "packages": [
         {
             "registryType": "pypi",
             "identifier": "gwas-mcp",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "transport": {
                 "type": "stdio"
             }

@@ -370,7 +370,7 @@ async def get_protein_interactions(
                 if response.status != 200:
                     return json.dumps({"error": f"STRING API error: {response.status}"}, indent=2)
                 
-                data = await response.json()
+                data = json.loads(await response.text())
                 
                 if not data:
                     return json.dumps({
@@ -406,7 +406,8 @@ async def get_protein_interactions(
                     "source": "STRING"
                 }, indent=2)
                 
-                set_cached(cache_key, result)
+                if interactions:
+                    set_cached(cache_key, result)
                 return result
                 
     except Exception as e:
@@ -427,7 +428,7 @@ async def get_interaction_network(proteins: List[str], species: int = 9606) -> s
         async with aiohttp.ClientSession() as session:
             url = f"{STRING_API}/json/network"
             params = {
-                "identifiers": "%0d".join(proteins),  # Newline-separated
+                "identifiers": "\r".join(proteins),  # Newline-separated
                 "species": species,
                 "required_score": 400,  # Medium confidence
                 "caller_identity": "gwas_mcp"
@@ -437,7 +438,7 @@ async def get_interaction_network(proteins: List[str], species: int = 9606) -> s
                 if response.status != 200:
                     return json.dumps({"error": f"STRING API error: {response.status}"}, indent=2)
                 
-                data = await response.json()
+                data = json.loads(await response.text())
                 
                 # Parse network
                 edges = []
@@ -456,16 +457,21 @@ async def get_interaction_network(proteins: List[str], species: int = 9606) -> s
                             "score": edge.get("score", 0) / 1000
                         })
                 
-                result = json.dumps({
+                payload = {
                     "query_proteins": proteins,
                     "n_nodes": len(nodes),
                     "n_edges": len(edges),
                     "nodes": list(nodes),
                     "edges": edges,
                     "source": "STRING"
-                }, indent=2)
+                }
+                if len(edges) == 0:
+                    payload["warning"] = "No interactions returned. Check protein names/species or lower required_score."
                 
-                set_cached(cache_key, result)
+                result = json.dumps(payload, indent=2)
+                
+                if len(edges) > 0:
+                    set_cached(cache_key, result)
                 return result
                 
     except Exception as e:
@@ -486,7 +492,7 @@ async def get_functional_enrichment(proteins: List[str], species: int = 9606) ->
         async with aiohttp.ClientSession() as session:
             url = f"{STRING_API}/json/enrichment"
             params = {
-                "identifiers": "%0d".join(proteins),
+                "identifiers": "\r".join(proteins),
                 "species": species,
                 "caller_identity": "gwas_mcp"
             }
@@ -495,7 +501,7 @@ async def get_functional_enrichment(proteins: List[str], species: int = 9606) ->
                 if response.status != 200:
                     return json.dumps({"error": f"STRING API error: {response.status}"}, indent=2)
                 
-                data = await response.json()
+                data = json.loads(await response.text())
                 
                 if not data:
                     return json.dumps({
